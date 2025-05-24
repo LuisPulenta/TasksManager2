@@ -1,5 +1,4 @@
 ﻿@page "/tasks"
-
 @inject IRepository repository;
 @inject NavigationManager navigationManager
 
@@ -33,7 +32,6 @@ else
                     <td>@task.IsCompleted</td>
                     <td>
                         <a class="btn btn-sm btn-outline-warning" href="/tasks/edit/@task.Id">Editar</a>
-                     
                     </td>
                 </tr>
             }
@@ -60,6 +58,4 @@ else
             Tasks = response.Result;
         }
     }
-
-
 }

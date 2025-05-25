@@ -1,5 +1,6 @@
 ﻿@page "/tasks"
 @inject IRepository repository;
+@inject SweetAlertService sweetAlertService
 @inject NavigationManager navigationManager
 
 <PageTitle>Tareas</PageTitle>
@@ -34,14 +35,14 @@ else
                         <a class="btn btn-sm btn-outline-warning" href="/tasks/edit/@task.Id">Editar</a>
                         @if (@task.IsCompleted)
                         {
-                            <button class="btn btn-sm btn-outline-success" > No Complet.</button>
+                            <button class="btn btn-sm btn-outline-success" @onclick=@(() => CompleteAsync(task))> No Complet.</button>
                         }
                         else
                         {
-                            <button class="btn btn-sm btn-outline-info" > Completada </button>
+                            <button class="btn btn-sm btn-outline-info" @onclick=@(() => CompleteAsync(task))> Completada </button>
                         }
 
-                        <button class="btn btn-sm btn-outline-danger" >Borrar</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick=@(() => DeleteAsync(task))>Borrar</button>
                     </td>
                      
                 </tr>
@@ -57,6 +58,59 @@ else
     //--------------------------------------------------------------------------------------------------------
     protected override async Task OnInitializedAsync()
     {
+        await LoadAsync();
+    }
+    //--------------------------------------------------------------------------------------------------------
+    private async Task DeleteAsync(MyTask task)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Está seguro que quieres borrar la tarea: {task.Description}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Si"
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        var responseHttp = await repository.DeleteAsync<MyTask>($"api/mytasks/{task.Id}");
+
+        if (!responseHttp.IsSuccess)
+        {
+            await sweetAlertService.FireAsync("Error", responseHttp.Message, SweetAlertIcon.Error);
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.Center,
+                ShowCloseButton = true,
+                Timer = 3000,
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Info, message: "Tarea borrada con éxito");
+    }
+
+    //--------------------------------------------------------------------------------------------------------
+    private async Task CompleteAsync(MyTask task)
+    {
+        task.IsCompleted = !task.IsCompleted;
+
+        var responseHttp = await repository.PutAsync("api/MyTasks/", task);
+
+        if (!responseHttp.IsSuccess)
+        {
+            await sweetAlertService.FireAsync("Error", responseHttp.Message, SweetAlertIcon.Error);
+        }
+
         await LoadAsync();
     }
 

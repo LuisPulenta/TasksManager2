@@ -1,15 +1,16 @@
 ﻿@page "/tasks/edit/{Id:int}"
 @inject IRepository repository
+@inject SweetAlertService sweetAlertService
 @inject NavigationManager navigationManager
 
 <h3>Editar Tarea</h3>
 
 @if (myTask is null)
 {
-    <p>Loading...</p>
+    <p>Cargando...</p>
 }else
 {
-
+    <TaskForm MyTask="myTask" OnValidSubmit="SaveAsync" ReturnAction="Return"></TaskForm>
 }
 
 
@@ -24,7 +25,10 @@
     protected async override Task OnInitializedAsync()
     {
         var responseHttp = await repository.GetAsync<MyTask>($"api/MyTasks/{Id}");
-       
+        if (!responseHttp.IsSuccess)
+        {
+            await sweetAlertService.FireAsync("Error", responseHttp.Message, SweetAlertIcon.Error);
+        }
         myTask = responseHttp.Result;
     }
 
@@ -32,8 +36,19 @@
     private async void SaveAsync()
     {
         var responseHttp = await repository.PutAsync("api/MyTasks/", myTask);
-       
+        if (!responseHttp.IsSuccess)
+        {
+            await sweetAlertService.FireAsync("Error", responseHttp.Message, SweetAlertIcon.Error);
+        }
         Return();
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.Center,
+                ShowCloseButton = true,
+                Timer = 3000,
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Info, message: "Cambios guardados con 'exito");
     }
 
     //--------------------------------------------------------------------------------------------------------

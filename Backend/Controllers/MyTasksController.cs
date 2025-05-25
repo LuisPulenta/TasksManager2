@@ -20,7 +20,7 @@ namespace Backend.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_context.MyTasks.ToList());
+            return Ok(_context.MyTasks.OrderBy(t => t.Date).ToList());
         }
 
         //---------------------------------------------------------------

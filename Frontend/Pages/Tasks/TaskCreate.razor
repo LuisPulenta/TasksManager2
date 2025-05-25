@@ -1,0 +1,24 @@
+﻿@page "/tasks/create"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+
+<h3>Nueva Tarea</h3>
+
+
+
+@code {
+    private MyTask myTask = new() { Date = DateTime.Today };
+
+    //--------------------------------------------------------------------------------------------------------
+    private async void CreateAsync()
+    {
+        var responseHttp = await repository.PostAsync("api/MyTasks/", myTask);
+        Return();
+    }
+
+    //--------------------------------------------------------------------------------------------------------
+    private void Return()
+    {
+        navigationManager.NavigateTo("/tasks");
+    }
+}

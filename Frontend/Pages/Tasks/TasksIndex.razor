@@ -32,7 +32,18 @@ else
                     <td>@task.IsCompleted</td>
                     <td>
                         <a class="btn btn-sm btn-outline-warning" href="/tasks/edit/@task.Id">Editar</a>
+                        @if (@task.IsCompleted)
+                        {
+                            <button class="btn btn-sm btn-outline-success" > No Complet.</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-outline-info" > Completada </button>
+                        }
+
+                        <button class="btn btn-sm btn-outline-danger" >Borrar</button>
                     </td>
+                     
                 </tr>
             }
         </tbody>

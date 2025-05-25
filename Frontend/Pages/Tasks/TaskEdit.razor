@@ -1,0 +1,44 @@
+﻿@page "/tasks/edit/{Id:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+
+<h3>Editar Tarea</h3>
+
+@if (myTask is null)
+{
+    <p>Loading...</p>
+}else
+{
+
+}
+
+
+
+@code {
+    private MyTask? myTask;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    //--------------------------------------------------------------------------------------------------------
+    protected async override Task OnInitializedAsync()
+    {
+        var responseHttp = await repository.GetAsync<MyTask>($"api/MyTasks/{Id}");
+       
+        myTask = responseHttp.Result;
+    }
+
+    //--------------------------------------------------------------------------------------------------------
+    private async void SaveAsync()
+    {
+        var responseHttp = await repository.PutAsync("api/MyTasks/", myTask);
+       
+        Return();
+    }
+
+    //--------------------------------------------------------------------------------------------------------
+    private void Return()
+    {
+        navigationManager.NavigateTo("/tasks");
+    }
+}
